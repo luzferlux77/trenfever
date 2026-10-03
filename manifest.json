@@ -1,0 +1,14 @@
+{
+  "web": {
+    "version": "2026.10.03.1035",
+    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-10-03-1035/trenfever-web-2026.10.03.1035.zip",
+    "minNative": 5,
+    "note": "Primera versión con actualizaciones automáticas",
+    "built": "2026-10-03T08:35:12.069Z"
+  },
+  "apk": {
+    "code": 6,
+    "name": "1.5",
+    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-10-03-1035/TrenFever-1.5.apk"
+  }
+}
