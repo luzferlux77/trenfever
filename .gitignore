@@ -1,0 +1,6 @@
+web/
+sources/renfe/
+sources/renfe-ld/
+sources/fgc/
+sources/fallos-trazado.json
+*.zip

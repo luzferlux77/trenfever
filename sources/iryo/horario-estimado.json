@@ -1,0 +1,185 @@
+{
+  "nota": "Iryo no publica horarios abiertos (GTFS). Este horario es una ESTIMACIÓN: rutas, paradas y frecuencias según la información pública de Iryo (2026); las horas marcadas como reales proceden del GTFS de la ATM (tramo Barcelona–Camp de Tarragona). Los tiempos de viaje se calculan con los AVE que recorren los mismos tramos. Edita este archivo si conoces las horas exactas y vuelve a generar los datos.",
+  "paradas": {
+    "MAD": "60000",
+    "BCN": "71801",
+    "ZGZ": "04040",
+    "TGN": "04104",
+    "VLC": "03216",
+    "CUE": "03208",
+    "COR": "50500",
+    "SVQ": "51003",
+    "AGP": "54413",
+    "ALB": "60600",
+    "ALC": "60911"
+  },
+  "rutas": [
+    {
+      "id": "MAD-BCN",
+      "nombre": "Madrid – Barcelona",
+      "paradas": [
+        "MAD",
+        "ZGZ",
+        "BCN"
+      ],
+      "ida_salidas": [
+        "06:05",
+        "07:00",
+        "08:05",
+        "09:00",
+        "10:05",
+        "11:00",
+        "12:30",
+        "13:30",
+        "15:00",
+        "16:00",
+        "17:05",
+        "18:00",
+        "19:05"
+      ],
+      "vuelta_salidas": [
+        "06:00",
+        "07:05",
+        "08:00",
+        "09:05",
+        "10:30",
+        "11:40",
+        "13:00",
+        "14:00",
+        "15:45",
+        "16:45",
+        "17:40",
+        "18:40",
+        "20:30"
+      ]
+    },
+    {
+      "id": "MAD-TGN-BCN",
+      "nombre": "Madrid – Camp de Tarragona – Barcelona",
+      "paradas": [
+        "MAD",
+        "ZGZ",
+        "TGN",
+        "BCN"
+      ],
+      "ida_llegadas": [
+        "12:00",
+        "18:24",
+        "22:17"
+      ],
+      "vuelta_salidas": [
+        "09:43",
+        "14:46",
+        "19:48"
+      ],
+      "real": "Horas en Barcelona según el GTFS de la ATM"
+    },
+    {
+      "id": "MAD-VLC",
+      "nombre": "Madrid – Valencia",
+      "paradas": [
+        "MAD",
+        "VLC"
+      ],
+      "ida_salidas": [
+        "06:45",
+        "13:10",
+        "20:10"
+      ],
+      "vuelta_salidas": [
+        "07:00",
+        "14:05",
+        "21:05"
+      ]
+    },
+    {
+      "id": "MAD-CUE-VLC",
+      "nombre": "Madrid – Cuenca – Valencia",
+      "paradas": [
+        "MAD",
+        "CUE",
+        "VLC"
+      ],
+      "ida_salidas": [
+        "09:40",
+        "17:10"
+      ],
+      "vuelta_salidas": [
+        "10:15",
+        "18:00"
+      ]
+    },
+    {
+      "id": "MAD-SVQ",
+      "nombre": "Madrid – Córdoba – Sevilla",
+      "paradas": [
+        "MAD",
+        "COR",
+        "SVQ"
+      ],
+      "ida_salidas": [
+        "07:15",
+        "10:15",
+        "13:15",
+        "16:45",
+        "19:15"
+      ],
+      "vuelta_salidas": [
+        "07:00",
+        "10:00",
+        "13:30",
+        "17:00",
+        "20:00"
+      ]
+    },
+    {
+      "id": "MAD-AGP",
+      "nombre": "Madrid – Córdoba – Málaga",
+      "paradas": [
+        "MAD",
+        "COR",
+        "AGP"
+      ],
+      "ida_salidas": [
+        "08:15",
+        "12:15",
+        "15:45",
+        "18:45"
+      ],
+      "vuelta_salidas": [
+        "07:15",
+        "11:15",
+        "15:15",
+        "19:15"
+      ]
+    },
+    {
+      "id": "MAD-ALC",
+      "nombre": "Madrid – Albacete – Alicante",
+      "paradas": [
+        "MAD",
+        "ALB",
+        "ALC"
+      ],
+      "ida_salidas": [
+        "07:30",
+        "11:30",
+        "15:30",
+        "19:30"
+      ],
+      "vuelta_salidas": [
+        "07:10",
+        "11:10",
+        "15:40",
+        "19:40"
+      ]
+    }
+  ],
+  "estaciones_extra": {
+    "04104": {
+      "nombre": "Camp de Tarragona",
+      "lat": 41.1920662,
+      "lon": 1.272666
+    }
+  }
+}

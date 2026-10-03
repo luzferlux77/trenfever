@@ -1,0 +1,45 @@
+# Regenera cada noche los horarios, líneas y trazados de TrenFever a partir de los GTFS oficiales
+# (Renfe Cercanías/Rodalies, Renfe AV/LD/MD, FGC) y, si han cambiado, publica un paquete nuevo.
+# La app comprueba manifest.json al abrirse y se descarga el paquete sola.
+name: Actualizar horarios de TrenFever
+
+on:
+  schedule:
+    - cron: '15 3 * * *' # cada día a las 03:15 UTC (05:15 en Madrid en verano)
+  workflow_dispatch: {} # y a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+concurrency:
+  group: datos
+  cancel-in-progress: false
+
+jobs:
+  datos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TZ: Europe/Madrid
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Descargar los horarios oficiales (GTFS)
+        run: node tools/fetch-gtfs.mjs
+
+      - name: Código de la última versión publicada
+        run: |
+          url=$(node -e "console.log(JSON.parse(require('fs').readFileSync('manifest.json','utf8')).web.url)")
+          curl -sfL -o web.zip "$url"
+          mkdir web && unzip -q web.zip -d web && rm web.zip
+
+      - name: Generar la red y los horarios
+        run: node --max-old-space-size=7000 tools/build-rail.mjs web
+
+      - name: Publicar si ha cambiado
+        run: node tools/publica-actualizacion.mjs --web-dir web --si-cambia --nota "Horarios del $(date +%d/%m/%Y)"
