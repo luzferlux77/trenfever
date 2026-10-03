@@ -1,12 +1,12 @@
 {
   "web": {
-    "version": "2026.10.03.1759",
-    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-10-03-1759/trenfever-web-2026.10.03.1759.zip",
-    "sha256": "468cb808bceae7d193c7b2963a174f9c362f7cd99ff892f2b5864b384bc3447d",
+    "version": "2026.10.03.1844",
+    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-10-03-1844/trenfever-web-2026.10.03.1844.zip",
+    "sha256": "ebefa485125c12f552fb991222b2a17b780d03b4d93ab5227273f6371ec3dfcf",
     "minNative": 5,
-    "note": "Barra de tiempo y panel inferior más fáciles de deslizar",
+    "note": "Panel inferior: tope justo bajo la barra superior",
     "data": "7a7c282b559a298f",
-    "built": "2026-10-03T15:59:25.471Z"
+    "built": "2026-10-03T16:44:06.860Z"
   },
   "apk": {
     "code": 6,
