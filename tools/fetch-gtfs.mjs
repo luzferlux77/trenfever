@@ -9,6 +9,17 @@ const FEEDS = [
   { dir: 'renfe', urls: ['https://ssl.renfe.com/ftransit/Fichero_CER_FOMENTO/fomento_transit.zip', 'https://files.mobilitydatabase.org/mdb-2653/latest.zip'] },
   { dir: 'renfe-ld', urls: ['https://ssl.renfe.com/gtransit/Fichero_AV_LD/google_transit.zip', 'https://files.mobilitydatabase.org/mdb-2620/latest.zip'] },
   { dir: 'fgc', urls: ['https://www.fgc.cat/google/google_transit.zip', 'https://files.mobilitydatabase.org/mdb-1856/latest.zip'] },
+  // tranvías (copias diarias de Mobility Database de los GTFS oficiales de cada operador)
+  { dir: 'tram-bcn-baix', urls: ['https://files.mobilitydatabase.org/mdb-1003/latest.zip'] },   // TRAM Barcelona: Trambaix
+  { dir: 'tram-bcn-besos', urls: ['https://files.mobilitydatabase.org/mdb-1004/latest.zip'] },  // TRAM Barcelona: Trambesòs
+  { dir: 'tram-madrid', urls: ['https://files.mobilitydatabase.org/mdb-2802/latest.zip'] },     // Metro Ligero (CRTM)
+  { dir: 'tram-valencia', urls: ['https://files.mobilitydatabase.org/mdb-2830/latest.zip'] },   // Metrovalencia (FGV)
+  { dir: 'tram-alicante', urls: ['https://files.mobilitydatabase.org/mdb-2829/latest.zip'] },   // TRAM d'Alacant (FGV)
+  { dir: 'tram-euskotren', urls: ['https://files.mobilitydatabase.org/mdb-2715/latest.zip'] },  // Euskotren: tranvías de Bilbao y Vitoria
+  { dir: 'tram-murcia', urls: ['https://files.mobilitydatabase.org/mdb-2729/latest.zip'] },     // Tranvía de Murcia
+  { dir: 'tram-zaragoza', urls: ['https://files.mobilitydatabase.org/mdb-2801/latest.zip'] },   // Tranvía de Zaragoza
+  { dir: 'tram-sevilla', urls: ['https://files.mobilitydatabase.org/mdb-2770/latest.zip'] },    // TUSSAM: Metrocentro
+  { dir: 'tram-tenerife', urls: ['https://files.mobilitydatabase.org/mdb-788/latest.zip'] },    // Metropolitano de Tenerife
 ];
 for (const f of FEEDS) {
   let buf = null, from = '';

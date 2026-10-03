@@ -1,5 +1,5 @@
 # Regenera cada noche los horarios, líneas y trazados de TrenFever a partir de los GTFS oficiales
-# (Renfe Cercanías/Rodalies, Renfe AV/LD/MD, FGC) y, si han cambiado, publica un paquete nuevo.
+# (Renfe Cercanías/Rodalies, Renfe AV/LD/MD, FGC y tranvías) y, si han cambiado, publica un paquete nuevo.
 # La app comprueba manifest.json al abrirse y se descarga el paquete sola.
 name: Actualizar horarios de TrenFever
 

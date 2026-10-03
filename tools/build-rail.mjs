@@ -324,10 +324,11 @@ const PROFILES = {
   ave: { c: [3.0, 1.0, 1.0, 60], hs: 0.85 },   // AVE, AVLO, Ouigo, Euromed, Avant: prefiere alta velocidad
   mix: { c: [1.0, 1.05, 1.0, 60], hs: 0.95 },   // Alvia, Intercity: cambian de ancho
   ib: { c: [1.0, 4.0, 1.0, 60], hs: 2.5 },       // Cercanías, MD, Regional: red convencional
+  tram: { c: [1.0, 1.0, 1.0, 1.0], hs: 4 },          // tranvías: sus propias vías
   met: { c: [40, 40, 40, 1.0], hs: 40 },         // ancho métrico (Feve, FGC Llobregat-Anoia)
   std: { c: [30, 1.0, 1.0, 40], hs: 1.0 },       // FGC Barcelona-Vallès (ancho estándar)
 };
-const hsF = (hs, pr) => (hs === 1 ? PROFILES[pr].hs : hs === 2 ? 2.5 : hs === 3 ? 6 : 1);
+const hsF = (hs, pr) => (pr === 'tram' ? (hs === 3 ? 1 : hs === 2 ? 2.5 : 4) : hs === 1 ? PROFILES[pr].hs : hs === 2 ? 2.5 : hs === 3 ? 6 : 1);
 const edgeCost = (e, pr) => e.len * PROFILES[pr].c[e.cls] * hsF(e.hs, pr);
 
 // punto de enganche de una estación para un perfil: nodo cercano de la clase más barata
@@ -522,7 +523,15 @@ function nearStations(x, y, r) {
   for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) for (const i of stGrid.get(cx + dx + ':' + (cy + dy)) || []) { const d = dist([x, y], [stations[i].x, stations[i].y]); if (d <= r) out.push([i, d]); }
   return out.sort((a, b) => a[1] - b[1]);
 }
+// nombres en MAYÚSCULAS (algunos GTFS): a formato normal, sin el prefijo «TRAM » del Metro Ligero
+const SMALL = new Set(['de', 'del', 'la', 'las', 'el', 'los', 'y', 'i', 'en', 'a', 'al', 'd', 'l']);
+function niceName(n) {
+  n = String(n || '').replace(/^TRAM\s+/i, '').trim();
+  if (n !== n.toUpperCase() || !/[A-ZÁÉÍÓÚÑ]{3}/.test(n)) return n;
+  return n.toLowerCase().replace(/[\p{L}\p{N}]+/gu, (w, i) => (i > 0 && SMALL.has(w) ? w : w[0].toUpperCase() + w.slice(1)));
+}
 function stationFor(op, stopId, name, lon, lat, extra = {}) {
+  name = niceName(name);
   // Renfe (Cercanías y LD) comparten código Adif → misma estación
   const key = (op === 'CER' || op === 'LD' ? 'ADIF:' : op + ':') + stopId;
   if (stByKey.has(key)) { const i = stByKey.get(key); stations[i].ops.add(op); if (extra.a) stations[i].a = 1; return i; } // p. ej. Cercanías y LD con el mismo código Adif
@@ -585,7 +594,7 @@ const NUCLEOS = {
 };
 const METRIC_NUCLEOS = new Set([45, 46, 47]);
 
-async function processFeed({ op, dir, routeInfo, keyOf }) {
+async function processFeed({ op, dir, routeInfo, keyOf, ns = '' }) {
   const agencyTZ = readCsv(path.join(dir, 'agency.txt'))[0] || {};
   const feed = { op, start: null, end: null, built: new Date().toISOString().slice(0, 10) };
   const fi = readCsv(path.join(dir, 'feed_info.txt'))[0]; if (fi) { feed.start = fi.feed_start_date; feed.end = fi.feed_end_date; feed.version = fi.feed_version; }
@@ -633,6 +642,22 @@ async function processFeed({ op, dir, routeInfo, keyOf }) {
     const t = trips.get(g(v, ix, 'trip_id')); if (!t) return;
     t.st.push([+g(v, ix, 'stop_sequence'), g(v, ix, 'stop_id'), toSec(g(v, ix, 'arrival_time')), toSec(g(v, ix, 'departure_time'))]);
   });
+  // horarios por frecuencias (frequencies.txt: «cada N segundos entre tal y tal hora»): un viaje por cada salida
+  const ff = path.join(dir, 'frequencies.txt');
+  if (fs.existsSync(ff)) {
+    let nf = 0;
+    for (const fq of readCsv(ff)) {
+      const t = trips.get(fq.trip_id); if (!t || !t.st.length) continue;
+      const base = t.st.slice().sort((x, y) => x[0] - y[0]), t0 = base[0][3] ?? base[0][2], hw = +fq.headway_secs;
+      if (!(hw > 0)) continue;
+      for (let s0 = toSec(fq.start_time); s0 < toSec(fq.end_time); s0 += hw) {
+        trips.set(fq.trip_id + '@' + s0, { ...t, st: base.map((x) => [x[0], x[1], x[2] == null ? null : x[2] - t0 + s0, x[3] == null ? null : x[3] - t0 + s0]) }); nf++;
+      }
+      t.freqTemplate = true;
+    }
+    for (const [id, t] of trips) if (t.freqTemplate) trips.delete(id);
+    if (nf) log(`  ${op}: ${nf} salidas generadas a partir de frecuencias`);
+  }
   const shapePts = new Map();
   const shf = path.join(dir, 'shapes.txt');
   if (fs.existsSync(shf)) await streamCsv(shf, (v, ix) => {
@@ -658,7 +683,7 @@ async function processFeed({ op, dir, routeInfo, keyOf }) {
       const parent = s.parent_station ? stopsRaw.get(s.parent_station) : null;
       const base = parent || s;
       pts.push([+s.stop_lon, +s.stop_lat]);
-      st.push(stationFor(op, base.stop_id, base.stop_name.replace(/\s+/g, ' '), +base.stop_lon, +base.stop_lat, { a: s.wheelchair_boarding === '1' }));
+      st.push(stationFor(op, ns + base.stop_id, base.stop_name.replace(/\s+/g, ' '), +base.stop_lon, +base.stop_lat, { a: s.wheelchair_boarding === '1' }));
     }
     if (bad) continue;
     const L = t.info;
@@ -707,7 +732,7 @@ async function processFeed({ op, dir, routeInfo, keyOf }) {
     const pk = [li, geom.sh, head, st.join('.'), a.join('.'), w.join('.')].join('|');
     let pi = patIdx.get(pk);
     if (pi === undefined) { pi = patterns.length; patIdx.set(pk, pi); patterns.push({ l: li, sh: geom.sh, h: head, s: st, a, w, sd: geom.sd }); }
-    const skey = op + ':' + t.svc;
+    const skey = op + ':' + ns + t.svc;
     let si = svcIdx.get(skey);
     if (si === undefined) { si = services.length; svcIdx.set(skey, si); services.push({ o: op, t: [], k: [], dates: svcDates.get(t.svc) }); }
     services[si].t.push(pi, b);
@@ -821,6 +846,27 @@ await processFeed({
       color: '#' + r.route_color.toUpperCase(), text: '#' + (r.route_text_color || 'FFFFFF').toUpperCase(), pr: FGC_LINES[r.route_short_name] };
   },
 });
+log('Tranvías…');
+// [carpeta, nombre de la red, tipos de ruta GTFS a incluir (null = todas), color por defecto]
+const TRAMS = [
+  ['tram-bcn-baix', 'TRAM Barcelona', null, '#00A88E'], ['tram-bcn-besos', 'TRAM Barcelona', null, '#00A88E'],
+  ['tram-madrid', 'Metro Ligero de Madrid', null, '#5B9BD5'], ['tram-valencia', 'Tranvía de València', ['0'], '#8BC53F'],
+  ['tram-alicante', "TRAM d'Alacant", null, '#E30613'], ['tram-euskotren', 'Euskotren Tranbia', ['0'], '#C8102E'],
+  ['tram-murcia', 'Tranvía de Murcia', null, '#D5001C'], ['tram-zaragoza', 'Tranvía de Zaragoza', null, '#C8102E'],
+  ['tram-sevilla', 'Metrocentro de Sevilla', ['0'], '#E2001A'], ['tram-tenerife', 'Tranvía de Tenerife', null, '#E30613'],
+];
+for (const [dir, name, types, defColor] of TRAMS) {
+  if (!fs.existsSync(path.join(SRC, dir, 'routes.txt'))) { log(`  ${name}: sin datos (${dir})`); continue; }
+  const col = (c, d) => (/^[0-9a-f]{6}$/i.test(c || '') ? '#' + c.toUpperCase() : d);
+  await processFeed({
+    op: 'TRAM', ns: dir + '|', dir: path.join(SRC, dir), keyOf: (tid) => dir + '|' + tid,
+    routeInfo: (r) => {
+      if (types && !types.includes(String(r.route_type))) return null;
+      const sn = (r.route_short_name || r.route_long_name || r.route_id).trim();
+      return { id: `TRAM_${dir}_${sn}`, sn, op: 'TRAM', prod: name, kind: 'tram', seg: 'REG', color: col(r.route_color, defColor), text: col(r.route_text_color, '#FFFFFF'), pr: 'tram' };
+    },
+  });
+}
 log(`trazados por las vías: ${routed} tramos, en línea recta (sin vía encontrada): ${straight}`);
 { const by = {}; for (const x of fails) { const k = x.why.replace(/d+ km vs d+ km/, 'N km'); by[k] = (by[k] || 0) + 1; } log('motivos: ' + JSON.stringify(by)); fs.writeFileSync(path.join(ROOT, 'sources', 'fallos-trazado.json'), JSON.stringify(fails.map((x) => ({ ...x, a: nearStations(x.A[0], x.A[1], 50)[0]?.[0], b: nearStations(x.B[0], x.B[1], 50)[0]?.[0] })).map((x) => ({ why: x.why, pr: x.pr, km: x.geo / 1000, de: stations[x.a]?.n, a: stations[x.b]?.n })), null, 1)); }
 
