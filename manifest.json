@@ -1,12 +1,12 @@
 {
   "web": {
-    "version": "2026.10.03.1419",
-    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-10-03-1419/trenfever-web-2026.10.03.1419.zip",
-    "sha256": "8bd98346d8bda2aa2918e2debc62aae59b3ae4fb4d8f0dab593a407ceab92a61",
+    "version": "2026.10.03.1457",
+    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-10-03-1457/trenfever-web-2026.10.03.1457.zip",
+    "sha256": "4392e9413abdbd4e23709c0de653c17287785db8be132428df48e3b7d34e6b70",
     "minNative": 5,
-    "note": "Horarios del 03/10/2026",
-    "data": "de1b0fafc9c509d3",
-    "built": "2026-10-03T12:19:40.502Z"
+    "note": "Nuevo: redes de tranvía de España con sus horarios",
+    "data": "7a7c282b559a298f",
+    "built": "2026-10-03T12:57:32.832Z"
   },
   "apk": {
     "code": 6,
