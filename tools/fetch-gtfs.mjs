@@ -21,21 +21,32 @@ const FEEDS = [
   { dir: 'tram-sevilla', urls: ['https://files.mobilitydatabase.org/mdb-2770/latest.zip'] },    // TUSSAM: Metrocentro
   { dir: 'tram-tenerife', urls: ['https://files.mobilitydatabase.org/mdb-788/latest.zip'] },    // Metropolitano de Tenerife
 ];
+// Comprobación del contenido: a veces una fuente oficial responde bien pero con el fichero incompleto
+// (el 05/10/2026 Renfe publicó Cercanías sin ningún tren de Rodalies). Entonces se prueba la siguiente fuente.
+const CHECKS = {
+  renfe: (dir) => { const t = path.join(dir, 'trips.txt'); if (!fs.existsSync(t)) return false; const s = fs.readFileSync(t, 'utf8'); let n = 0; for (let i = s.indexOf('\n51T'); i >= 0 && n < 100; i = s.indexOf('\n51T', i + 1)) n++; return n >= 100; },
+};
+const unzipTo = (zip, dst) => {
+  fs.rmSync(dst, { recursive: true, force: true }); fs.mkdirSync(dst, { recursive: true });
+  execSync(process.platform === 'win32' ? `"C:/Windows/System32/tar.exe" -xf "${zip}" -C "${dst}"` : `unzip -q -o "${zip}" -d "${dst}"`);
+};
 for (const f of FEEDS) {
-  let buf = null, from = '';
+  const dst = path.join(ROOT, 'sources', f.dir), tmp = dst + '.nuevo', zip = dst + '.zip';
+  let ok = false;
   for (const u of f.urls) {
     try {
       const r = await fetch(u, { signal: AbortSignal.timeout(300000), headers: { 'User-Agent': 'TrenFever/0.1' } });
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      buf = Buffer.from(await r.arrayBuffer()); if (buf[0] !== 0x50 || buf[1] !== 0x4b) throw new Error('no es un zip');
-      from = u; break;
-    } catch (e) { console.log(`  ${f.dir}: ${new URL(u).host} falló (${e.message})`); }
+      const buf = Buffer.from(await r.arrayBuffer()); if (buf[0] !== 0x50 || buf[1] !== 0x4b) throw new Error('no es un zip');
+      fs.writeFileSync(zip, buf);
+      unzipTo(zip, tmp);
+      fs.rmSync(zip);
+      if (CHECKS[f.dir] && !CHECKS[f.dir](tmp)) throw new Error('fichero incompleto');
+      fs.rmSync(dst, { recursive: true, force: true });
+      fs.renameSync(tmp, dst);
+      console.log(`${f.dir}: ${(buf.length / 1048576).toFixed(1)} MB desde ${new URL(u).host}`);
+      ok = true; break;
+    } catch (e) { console.log(`  ${f.dir}: ${new URL(u).host} falló (${e.message})`); fs.rmSync(tmp, { recursive: true, force: true }); }
   }
-  if (!buf) { console.log(`${f.dir}: SIN DESCARGAR, se conservan los datos anteriores`); continue; }
-  const dst = path.join(ROOT, 'sources', f.dir), zip = dst + '.zip';
-  fs.writeFileSync(zip, buf);
-  fs.rmSync(dst, { recursive: true, force: true }); fs.mkdirSync(dst, { recursive: true });
-  execSync(process.platform === 'win32' ? `"C:/Windows/System32/tar.exe" -xf "${zip}" -C "${dst}"` : `unzip -q -o "${zip}" -d "${dst}"`);
-  fs.rmSync(zip);
-  console.log(`${f.dir}: ${(buf.length / 1048576).toFixed(1)} MB desde ${new URL(from).host}`);
+  if (!ok) console.log(`${f.dir}: SIN DESCARGAR, se conservan los datos anteriores`);
 }
