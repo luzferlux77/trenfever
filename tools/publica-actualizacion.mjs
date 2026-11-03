@@ -23,7 +23,11 @@ const WEB = path.resolve(arg('--web-dir') || path.join(ROOT, 'web'));
 
 // --- manifiesto actual (si existe)
 let manifest = {}, sha = null;
-try { const r = JSON.parse(gh(['api', `repos/${REPO}/contents/manifest.json`])); sha = r.sha; manifest = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); } catch { /* primera publicación */ }
+// (con reintentos: un fallo puntual de GitHub no debe tomarse como «no hay manifiesto» y pisarlo)
+for (let i = 0; ; i++) {
+  try { const r = JSON.parse(gh(['api', `repos/${REPO}/contents/manifest.json`])); sha = r.sha; manifest = JSON.parse(Buffer.from(r.content, 'base64').toString('utf8')); break; }
+  catch (e) { if (/Not Found|404/.test(String(e.stderr || e.message))) break; if (i >= 4) throw e; execFileSync(process.execPath, ['-e', 'setTimeout(()=>{},8000)']); }
+}
 
 // --- huella de los datos: si no han cambiado y se pidió --si-cambia, no hay nada que publicar
 const dataHash = crypto.createHash('sha256');
