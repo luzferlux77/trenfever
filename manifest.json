@@ -1,12 +1,12 @@
 {
   "web": {
-    "version": "2026.11.03.1349",
-    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-11-03-1349/trenfever-web-2026.11.03.1349.zip",
-    "sha256": "90665f5456485babc6475f711074a0c3b3fa6c6a4c42f1f964489ef7e00b8dd2",
+    "version": "2026.11.04.1157",
+    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-11-04-1157/trenfever-web-2026.11.04.1157.zip",
+    "sha256": "f677d0cde1042d5be4c8bf3864a0e82fc6c79433c8603f3c65a934a289d983e2",
     "minNative": 5,
-    "note": "Cercanías: cancelaciones, paradas suprimidas, líneas cortadas y trenes detenidos (corrección)",
-    "data": "8c3bd23f94b75c42",
-    "built": "2026-11-03T12:49:05.176Z"
+    "note": "Horarios del 04/11/2026",
+    "data": "b7a3a72d682076aa",
+    "built": "2026-11-04T10:57:08.055Z"
   },
   "apk": {
     "code": 6,
