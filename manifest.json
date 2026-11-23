@@ -1,12 +1,12 @@
 {
   "web": {
-    "version": "2026.11.22.1226",
-    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-11-22-1226/trenfever-web-2026.11.22.1226.zip",
-    "sha256": "bbcadfc1d2c9d8eebf7a3048a37193ed7cb8b87286400a27c98e672c517c162f",
+    "version": "2026.11.23.1344",
+    "url": "https://github.com/luzferlux77/trenfever/releases/download/v2026-11-23-1344/trenfever-web-2026.11.23.1344.zip",
+    "sha256": "968253cb292f20bbe1836098064d781fcaf2d6d76210e45ccc8846bf316ba319",
     "minNative": 5,
-    "note": "Horarios del 22/11/2026",
-    "data": "a041ccad0c2eb1ac",
-    "built": "2026-11-22T11:26:53.523Z"
+    "note": "Horarios del 23/11/2026",
+    "data": "5bd2de284aca99e4",
+    "built": "2026-11-23T12:44:08.503Z"
   },
   "apk": {
     "code": 6,
